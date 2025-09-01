@@ -63,7 +63,7 @@ DATABASE-DRIVEN-BILLING-SYSTEM/
 ---
 
 ## 🖼 Block Diagram
-![block daigram](images/rfid block daigram.png)
+![images](images/rfid block daigram.png)
 
 *(Shows LPC2148 connected to RFID reader, LCD, keypad, MAX232, and Linux PC via UART)*
 
