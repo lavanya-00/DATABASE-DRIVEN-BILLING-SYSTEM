@@ -1,92 +1,164 @@
-Database-Driven Billing System using RFID and LPC2148
+# 📡 Database-Driven Billing System (RFID + LPC2148)
 
-🧾 Project Overview
+## 📖 Overview
 
-This project implements a real-time billing system that uses RFID technology and an LPC2148 microcontroller. It is designed to interact with a Linux-based database via UART communication. The system facilitates stock management, purchase entry, deletion, and secure payment handling through both cash and ATM card emulation. 🎯 Objective
+This project implements a **real-time, embedded billing system** using **RFID technology** and the **LPC2148 ARM7 microcontroller**.
+The system communicates with a **Linux database via UART**, supports **cash & card payments**, and performs **stock management with billing automation**.
 
-To build a general-purpose, embedded billing system that:
+---
 
-Reads RFID cards for item identification.
-Communicates with a Linux PC for stock and payment operations.
-Performs real-time billing and updates the database accordingly.
-🔧 Requirements Hardware
+## 🎯 Key Features
 
-LPC2148 ARM7 Microcontroller
-RFID Reader & RFID Cards
-LCD Display (16x2)
-4x4 Keypad
-Switches
-MAX232 (for serial communication)
-USB-to-UART Converter
-Software
+* 🔐 RFID-based **item recognition & manager access**
+* 🔄 **UART-driven MCU ↔ Linux communication**
+* 📊 Real-time **stock updates & billing**
+* 💳 **Dual Payment Modes**: Cash / Card (PIN validation)
+* 🚫 Handles **invalid cards & low stock**
+* 🔧 Expandable for **new products/banks**
 
-Embedded C
-Keil uVision (for coding and compilation)
-Flash Magic (for firmware upload)
-Linux (for database and UART communication)
-UART Loopback Program (for testing on Linux)
-📁 Folder Structure DATABASE-DRIVEN-BILLING-SYSTEM-main/ ├── Embedded_Code/ │ ├── lcd.c, lcd.h │ ├── uart.c, uart.h │ ├── keypad.c, keypad.h | |── eint0_eint1.c, header.h │ ├── delay.c, delay.h │ └── projectmain.c ├── Linux_Code/ │ ├── uart_linux.c │ ├── main.c myheader.h │ ├── stock.txt │ └── bank.txt └── README.md
+---
 
-🚀 How to Run the Project
+## 🔧 Requirements
 
-🔌 Microcontroller Setup
+### Hardware
 
-Write individual modules for:
+* LPC2148 ARM7 Microcontroller
+* RFID Reader + RFID Cards
+* 16x2 LCD Display
+* 4x4 Keypad + Switches
+* MAX232 (RS-232 level conversion)
+* USB-to-UART Converter
 
-LCD Display
-UART0 and UART1 (interrupt-based)
-eint0_eint1.c
-Keypad
-RFID Card Reader
-Integrate all modules into projectmain.c.
+### Software
 
-Flash the final hex file using Flash Magic to LPC2148.
+* **Embedded C** (Keil uVision for coding & compilation)
+* **Flash Magic** (upload firmware to LPC2148)
+* **Linux (gcc)** for UART + database
+* **UART Loopback test program**
 
-🐧 Linux System Setup
+---
 
-Use the provided uart_linux.c program.
+## 📂 Project Structure
 
-Create two text files:
+```
+DATABASE-DRIVEN-BILLING-SYSTEM/
+│
+├── Embedded_Code/
+│   ├── lcd.c, lcd.h
+│   ├── uart.c, uart.h
+│   ├── keypad.c, keypad.h
+│   ├── eint0_eint1.c, header.h
+│   ├── delay.c, delay.h
+│   └── projectmain.c
+│
+├── Linux_Code/
+│   ├── uart_linux.c
+│   ├── main.c, myheader.h
+│   ├── stock.txt
+│   └── bank.txt
+│
+└── README.md
+```
 
-stock.txt: item inventory with quantities and prices.
-bank.txt: mock bank account and PIN data.
-Run the UART listener program to handle communication.
+---
 
-🔄 System Flow
+## 🖼 Block Diagram
 
-Display project RFID SYSTEM message on LCD.
+![Block Diagram](docs/block-diagram.png)
+*(Shows LPC2148 connected to RFID reader, LCD, keypad, MAX232, and Linux PC via UART)*
 
-Wait for Entry, Delete, or Exit key signal.
+---
 
-On RFID scan:
+## 🔄 System Flow
 
-Manager card allows stock update.
-Item card triggers purchase and billing.
-On Exit:
+![System Flow](docs/system-flow.png)
+*(Illustrates RFID scan → Validation → Stock update → Billing → Payment → Database update)*
 
-Choose payment method: Cash or Card.
-Validate card and PIN for ATM card transactions.
-Update database accordingly 📑 Data Formats
-Manager Card: $<CARDNUMBER>& Customer Card: $&**Delete Card:**$&``
+---
 
-📂 Example Data
+## 🚀 Running the Project
 
-stock.txt
+### 1️⃣ Microcontroller Setup
 
-Item       | CardNumber | Quantity | Price
-SOAPS      | 00332069   | 190      | 100
-MILKY      | 00336463   | 95       | 50
-CHIPS      | 00312472   | 26       | 10
-bank.txt
+* Write and test drivers:
 
-Bank Name | Acc Number | Balance | PIN VECTOR | 12638754 | 10000 | 1234
+  * LCD, UART0/UART1, RFID, Keypad, External Interrupts
+* Integrate into `projectmain.c`
+* Compile in **Keil uVision**, generate HEX
+* Flash LPC2148 using **Flash Magic**
 
-📎 Notes
+### 2️⃣ Linux Setup
 
-UART0 is used for communication with Linux.
-UART1 is used for RFID input.
-Error handling and invalid card detection logic should be added for robustness.
-Expandable for multiple banks or product categories.
-✅ Status
+* Compile `uart_linux.c` →
 
-✅ RFID Reading ✅ UART Communication ✅ Item Billing & Stock Update ✅ Cash & Card Payment Simulation ✅ Embedded C Code & Linux Code included
+  ```bash
+  gcc uart_linux.c -o uart_app
+  ./uart_app
+  ```
+* Prepare data files:
+
+  * `stock.txt` → inventory (item, qty, price)
+  * `bank.txt` → bank account details (acc no, balance, PIN)
+* Run listener to sync data with MCU
+
+---
+
+## 📑 Data Formats
+
+* **Manager Card** → `$<CARDNUMBER>&`
+* **Customer Card** → `$&`
+* **Delete Card** → \`\$&\`\`
+
+### Example `stock.txt`
+
+| Item  | CardNumber | Qty | Price |
+| ----- | ---------- | --- | ----- |
+| SOAPS | 00332069   | 190 | 100   |
+| MILKY | 00336463   | 95  | 50    |
+| CHIPS | 00312472   | 26  | 10    |
+
+### Example `bank.txt`
+
+| Bank Name | Acc Number | Balance | PIN  |
+| --------- | ---------- | ------- | ---- |
+| VECTOR    | 12638754   | 10000   | 1234 |
+
+---
+
+## ⚙️ Workflow
+
+1. LCD shows **"RFID SYSTEM READY"**
+2. User selects **Entry / Delete / Exit**
+3. On RFID scan:
+
+   * 🛠 Manager Card → **Stock Update**
+   * 🛒 Item Card → **Purchase & Billing**
+4. On Exit:
+
+   * Select **Cash / Card Payment**
+   * Validate PIN (ATM emulation)
+   * Update stock & bank balance
+
+---
+
+## 📎 Notes
+
+* **UART0** → Linux communication
+* **UART1** → RFID input
+* Add-on improvements possible:
+
+  * Multi-user database
+  * Extended categories
+  * Secure PIN hashing
+
+---
+
+## ✅ Status
+
+* ✅ RFID Reader integration
+* ✅ UART communication (LPC2148 ↔ Linux)
+* ✅ Real-time billing & stock update
+* ✅ Cash/Card payment simulation
+* ✅ Embedded + Linux code included
+
+
